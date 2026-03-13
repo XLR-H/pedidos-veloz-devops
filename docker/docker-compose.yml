@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres-pedidos
+    environment:
+      POSTGRES_DB: pedidosdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pedidos:
+    build:
+      context: ../services/pedidos
+    container_name: pedidos-service
+    environment:
+      DB_HOST: postgres
+      DB_NAME: pedidosdb
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+
+  pagamentos:
+    build:
+      context: ../services/pagamentos
+    container_name: pagamentos-service
+    ports:
+      - "5001:5001"
+
+  estoque:
+    build:
+      context: ../services/estoque
+    container_name: estoque-service
+    ports:
+      - "5002:5002"
+
+  gateway:
+    build:
+      context: ../services/gateway
+    container_name: gateway-service
+    environment:
+      PEDIDOS_URL: http://pedidos:5000
+      PAGAMENTOS_URL: http://pagamentos:5001
+      ESTOQUE_URL: http://estoque:5002
+    ports:
+      - "5003:5003"
+    depends_on:
+      - pedidos
+      - pagamentos
+      - estoque
+
+volumes:
+  postgres_data:

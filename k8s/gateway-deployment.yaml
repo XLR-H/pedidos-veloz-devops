@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+  namespace: pedidos-veloz
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway
+  template:
+    metadata:
+      labels:
+        app: gateway
+    spec:
+      containers:
+        - name: gateway
+          image: docker-gateway:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 5003
+          env:
+            - name: PEDIDOS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pedidos-config
+                  key: PEDIDOS_URL
+            - name: PAGAMENTOS_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pedidos-config
+                  key: PAGAMENTOS_URL
+            - name: ESTOQUE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: pedidos-config
+                  key: ESTOQUE_URL
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5003
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5003
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  namespace: pedidos-veloz
+spec:
+  selector:
+    app: gateway
+  ports:
+    - port: 5003
+      targetPort: 5003
+  type: NodePort
