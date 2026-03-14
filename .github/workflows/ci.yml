@@ -1,0 +1,65 @@
+name: CI - Pedidos Veloz
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Instalar dependências do serviço pedidos
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r services/pedidos/requirements.txt
+
+      - name: Validar sintaxe do serviço pedidos
+        run: |
+          python -m py_compile services/pedidos/app.py
+
+      - name: Instalar dependências do serviço pagamentos
+        run: |
+          pip install -r services/pagamentos/requirements.txt
+
+      - name: Validar sintaxe do serviço pagamentos
+        run: |
+          python -m py_compile services/pagamentos/app.py
+
+      - name: Instalar dependências do serviço estoque
+        run: |
+          pip install -r services/estoque/requirements.txt
+
+      - name: Validar sintaxe do serviço estoque
+        run: |
+          python -m py_compile services/estoque/app.py
+
+      - name: Instalar dependências do gateway
+        run: |
+          pip install -r services/gateway/requirements.txt
+
+      - name: Validar sintaxe do gateway
+        run: |
+          python -m py_compile services/gateway/app.py
+
+      - name: Build da imagem pedidos
+        run: docker build -t pedidos-service ./services/pedidos
+
+      - name: Build da imagem pagamentos
+        run: docker build -t pagamentos-service ./services/pagamentos
+
+      - name: Build da imagem estoque
+        run: docker build -t estoque-service ./services/estoque
+
+      - name: Build da imagem gateway
+        run: docker build -t gateway-service ./services/gateway

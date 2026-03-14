@@ -35,6 +35,13 @@ spec:
                 configMapKeyRef:
                   name: pedidos-config
                   key: ESTOQUE_URL
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /health
