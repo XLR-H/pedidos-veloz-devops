@@ -235,8 +235,7 @@ para automatizar esse processo.
 O vídeo demonstrando a arquitetura e a execução do sistema será
 disponibilizado no seguinte link:
 
-(adicionar link do vídeo aqui)
-
+https://youtu.be/c0oeqXTXby4
 ------------------------------------------------------------------------
 
 ## Conclusão
